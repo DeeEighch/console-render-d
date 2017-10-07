@@ -1,6 +1,8 @@
 {
 	"fileVersion": 1,
 	"versions": {
+		"derelict-lua": "2.0.0-beta.2",
+		"derelict-util": "3.0.0-beta.2",
 		"dscanner": "0.4.0",
 		"dsymbol": "0.2.9",
 		"emsi_containers": "0.5.3",
