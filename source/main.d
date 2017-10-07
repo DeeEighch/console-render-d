@@ -2,6 +2,9 @@
 import std.stdio;
 import std.getopt;
 import engine;
+import engine.server;
+
+
 
 enum RunConfig {
     server,
@@ -9,6 +12,7 @@ enum RunConfig {
 };
 
 RunConfig runConfig = RunConfig.client; 
+
 
 
 void main(string[] args)
@@ -23,11 +27,17 @@ void main(string[] args)
     }    
 
 
-    if(runConfig == RunConfig.client) {
+    if(false && runConfig == RunConfig.client) {
         auto client = new Client();
         client.run(args);
     } else {
-        writefln("not implemented!");
+        auto world = new World;
+        world.initialize(new RandomGenerator(0));
+        world.generate(16, 16);
+
+        
+        
+        writeln("not implemented!");
     }
 
             
