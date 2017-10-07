@@ -15,3 +15,5 @@ game1-test-*
 game1
 dub.selection.json
 .idea/*
+*.dlangidews*
+*.settings
