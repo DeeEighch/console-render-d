@@ -13,3 +13,4 @@ game1-test-*
 *.obj
 *.lst
 game1
+dub.selection.json
