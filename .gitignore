@@ -14,3 +14,4 @@ game1-test-*
 *.lst
 game1
 dub.selection.json
+.idea/*
