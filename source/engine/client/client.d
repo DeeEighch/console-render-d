@@ -15,9 +15,9 @@ class Client {
         //writeln("ulong: ", ulong.sizeof, " bytes");
         //writeln("uint: ", uint.sizeof, " bytes");
         
-        for (int i; i < 1; i++) {
+        for (int i; i < 10; i++) {
             m_render.clear(0x0000ffff);
-            m_render.draw(-1,10,0);
+            m_render.draw(i,10,0);
             m_render.flush();
         }
         

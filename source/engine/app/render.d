@@ -2,6 +2,41 @@ module engine.app.render;
 import std.stdio;
 import std.format;
 
+interface Drawaible {
+    void draw(uint x, uint y, Render render);
+}
+
+class Color {
+    private uint data;
+
+    this(uint argb) {
+        data = argb;
+    }
+
+    this(ubyte r, ubyte g, ubyte b, ubyte a = 0xFF){
+        data = 0;
+        this.a = a;        
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+
+    @property uint a() { return (data >> 24) & 0xFF ; };
+    @property void a(uint value) { data = (data & 0x00FFFFFF) | ((value & 0xFF) << 24); };    
+
+    @property uint r() { return (data >> 16) & 0xFF ; };
+    @property void r(uint value) { data = (data & 0xFF00FFFF) | ((value & 0xFF) << 16); };    
+    
+    @property uint g() { return (data >> 8) & 0xFF ; };
+    @property void g(uint value) { data = (data & 0xFFFF00FF) | ((value & 0xFF) << 8); };    
+    
+    @property uint b() { return (data >> 0) & 0xFF ; };
+    @property void b(uint value) { data = (data & 0xFFFFFF00) | ((value & 0xFF) << 0); };    
+
+    @property uint argb() { return data; };
+    @property void argb(uint value) { data = value; };        
+}
+
 interface Render
 {
 
@@ -39,16 +74,20 @@ class ConsoleRender : Render
                 point = 0x0000ffff;
             }
         }*/
-        uint[][] sprite =   [[0x00000000u, 0xffffffffu, 0x00000000u],
-                             [0xffffffffu, 0xffffffffu, 0x00000000u],
-                             [0x00000000u, 0x00000000u, 0x00000000u]];
-        draw_sprite(xx, yy, sprite);
+
+        Color color = new Color(0xFF, 0, 0xFF);
+
+        uint a = color.a;
+        uint r = color.r;
+        uint g = color.g;
+        uint b = color.b;
+        uint argb = color.argb;
     }
 
     void draw_point(uint x, uint y, uint argb) {
         if (x >= 0 && y >= 0 && x < m_buffer_w && y < m_buffer_h) {
             buffer()[y][x] = argb;
-        }
+        }       
         
     }
 
@@ -77,7 +116,6 @@ class ConsoleRender : Render
             current_buffer = 0;
             render_buffer(1);
         }
-
     }
 
     ref uint[][] buffer() {
@@ -104,3 +142,4 @@ class ConsoleRender : Render
         return console_escape;
     }
 }
+
