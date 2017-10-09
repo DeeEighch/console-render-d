@@ -29,12 +29,33 @@ class ConsoleRender : Render
                 slice_row.length = buffer_w;
             }
         }
+        m_buffer_w = buffer_w;
+        m_buffer_h = buffer_h;
     }
 
-    void draw(uint xx, uint xy, uint id) {
-        foreach (ref row; buffer()) {
+    void draw(uint xx, uint yy, uint id) {
+        /*foreach (ref row; buffer()) {
             foreach (ref point; row) {
                 point = 0x0000ffff;
+            }
+        }*/
+        uint[][] sprite =   [[0x00000000u, 0xffffffffu, 0x00000000u],
+                             [0xffffffffu, 0xffffffffu, 0x00000000u],
+                             [0x00000000u, 0x00000000u, 0x00000000u]];
+        draw_sprite(xx, yy, sprite);
+    }
+
+    void draw_point(uint x, uint y, uint argb) {
+        if (x < m_buffer_w && y < m_buffer_h) {
+            buffer()[y][x] = argb;
+        }
+        
+    }
+
+    void draw_sprite(uint position_x, uint position_y, uint[][] sprite) {
+        for (uint y; y < sprite.length; y++) {
+            for (uint x; x < sprite[y].length; x++) {
+                draw_point(position_x + x, position_y + y, sprite[y][x]);
             }
         }
     }
