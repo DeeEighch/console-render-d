@@ -46,7 +46,7 @@ class ConsoleRender : Render
     }
 
     void draw_point(uint x, uint y, uint argb) {
-        if (x < m_buffer_w && y < m_buffer_h) {
+        if (x >= 0 && y >= 0 && x < m_buffer_w && y < m_buffer_h) {
             buffer()[y][x] = argb;
         }
         
