@@ -1,8 +1,9 @@
 module engine.app.render;
 import std.stdio;
+import std.format;
 
-
-interface Render {
+interface Render
+{
 
     void clear(uint argb);
 
@@ -12,75 +13,73 @@ interface Render {
 
 }
 
-class ConsoleRender : Render {
+class ConsoleRender : Render
+{
+
+    uint m_buffer_w;
+    uint m_buffer_h;
+    uint current_buffer;
+    uint [][][] m_buffer;
     
-    uint m_buffer_w = 0;
-    uint m_buffer_h = 0;
-    uint current_buffer = 1;
-    char [][] m_buffer1;
-    char [][] m_buffer2;
     this(uint buffer_w, uint buffer_h) {
-        
-            m_buffer1.length = buffer_h;
-            foreach (ref row; m_buffer1){
-                row.length = buffer_w;
-            }
-            m_buffer2.length = buffer_h;
-            foreach (ref row; m_buffer2){
-                row.length = buffer_w;
-            }
-        m_buffer_w = buffer_h;
-        m_buffer_h = buffer_w;
-    }
-
-    void draw (uint xx, uint xy, uint id){
-        foreach(ref row; buffer()){
-            foreach(ref point; row){
-                point = '*';
-            }
-        }
-    }
-    
-    void clear (uint argb) {
-        foreach (ref row; buffer()){
-            foreach (ref point; row){
-                point = ' ';
+        m_buffer.length = 2;
+        foreach(ref buffer_slice; m_buffer) {
+            buffer_slice.length = buffer_h;
+            foreach(ref slice_row; buffer_slice) {
+                slice_row.length = buffer_w;
             }
         }
     }
 
-    void flush(){
+    void draw(uint xx, uint xy, uint id) {
+        foreach (ref row; buffer()) {
+            foreach (ref point; row) {
+                point = 0x0000ffff;
+            }
+        }
+    }
+
+    void clear(uint argb) {
+        foreach (ref row; buffer()) {
+            foreach (ref point; row) {
+                point = argb;
+            }
+        }
+    }
+
+    void flush() {
         writeln("\n");
-        if (current_buffer == 1){
-            current_buffer = 2;
-            render_buffer(m_buffer1);
-        } else {
+        if (current_buffer == 0) {
             current_buffer = 1;
-            render_buffer(m_buffer2);
-        }
-        
-    }
-
-    ref char [][] buffer() {
-        if (current_buffer == 1){
-            return m_buffer1;
+            render_buffer(0);
         } else {
-            return m_buffer2;
+            current_buffer = 0;
+            render_buffer(1);
         }
+
     }
 
-    void render_buffer(char [][] buffer){
-        int r = 0;
-        foreach (ref row; buffer){
+    ref uint[][] buffer() {
+        return m_buffer[current_buffer];
+    }
+
+    void render_buffer(int index) {
+        int r;
+        foreach (ref row; m_buffer[index]) {
             r++;
-            foreach (ref point; row){
-                write(point);
-                
+            foreach (ref point; row) {
+                write(bufferPointToConsoleEscape(point));
             }
-            if (r != buffer.length){
+            
+            if (r != m_buffer[index].length) {
                 write('\n');
             }
         }
     }
-}
 
+    string bufferPointToConsoleEscape(uint argb) {
+        ubyte[] colors = (cast(ubyte*) &argb)[0 .. argb.sizeof];
+        string console_escape = format("\x1b[48;2;%(%s;%)m \x1b[0m", [colors[0], colors[1], colors[2]]);
+        return console_escape;
+    }
+}
