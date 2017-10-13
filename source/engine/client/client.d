@@ -7,17 +7,17 @@ class Client {
 
     Render m_render = new ConsoleRender(80,24);
 
+    Drawable td = new TestDrawable(2);
+
     void run(string[] args) {
 
         foreach(arg;args) {
-            //writeln(arg);
+            writeln(arg);
         }
-        //writeln("ulong: ", ulong.sizeof, " bytes");
-        //writeln("uint: ", uint.sizeof, " bytes");
         
-        for (int i; i < 10; i++) {
-            m_render.clear(0x0000ffff);
-            m_render.draw(i,10,0);
+        for (int i; true; i = ++i % 80) {
+            m_render.clear(0x00ffff00);
+            td.draw(i ,12, m_render);
             m_render.flush();
         }
         
