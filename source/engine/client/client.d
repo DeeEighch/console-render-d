@@ -3,6 +3,7 @@ module engine.client.client;
 import std.exception;
 import std.typecons;
 import engine.app.render;
+import engine.app.input;
 import std.stdio;
 
 class Client {
@@ -19,9 +20,14 @@ class Client {
             writeln(arg);
         }
 
-        for (int i; i < 10; i = ++i % 80) {
+        for (int i; Input.handle().code !is Input.Event.KeyCode.ESC; i = ++i % 80) {
+            static int x = 2;
+            static int y = 12;
             m_render.clear(Color(255,255,0));
-            td.draw(i ,12, m_render);
+            if (Input.last_event.code is Input.Event.KeyCode.D){
+                x++;
+            }
+            td.draw(x ,y, m_render);
             m_render.flush();
         }
         
