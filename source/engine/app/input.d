@@ -2,11 +2,9 @@
 
 import std.conv;
 import std.process;
-import core.sys.posix.fcntl;
-import core.sys.posix.unistd;
 import std.stdio;
 import core.stdc.stdlib;
-import core.sys.posix.sys.time;
+
 
 
 class Input
@@ -54,50 +52,73 @@ class Input
         return Input.Instance().last;
     }
 }
+version (Posix) {
+	import core.sys.posix.fcntl;
+	import core.sys.posix.unistd;
+	import core.sys.posix.sys.time;
+	import core.sys.posix.sys.time;
 
-class PosixInput : Input {
-    enum CMD = "grep -E 'Handlers|EV' /proc/bus/input/devices |"
-               "grep -B1 120013 |"
-               "grep -Eo event[0-9]+ |"
-               "tr '\\n' '\\0'";
-    string kb_file;
+	class PosixInput : Input {
+	    enum CMD = "grep -E 'Handlers|EV' /proc/bus/input/devices |"
+	               "grep -B1 120013 |"
+	               "grep -Eo event[0-9]+ |"
+	               "tr '\\n' '\\0'";
+	    string kb_file;
 
-    struct input_event {
-        timeval time;
-        uint16_t type;
-        uint16_t code;
-        int32_t value;
-    };
+	    struct input_event {
+	        timeval time;
+	        uint16_t type;
+	        uint16_t code;
+	        int32_t value;
+	    };
 
-    this(){
+	    this(){
 
-        kb_file = getKeyboardDeviceFileName();
-        int kb_fd = open(kb_file.ptr, O_RDONLY);
-        writeln("KBFD: ", kb_fd);
-        close(kb_fd);
-        //exit(1);
-    }
+	        kb_file = getKeyboardDeviceFileName();
+	        int kb_fd = open(kb_file.ptr, O_RDONLY);
+	        writeln("KBFD: ", kb_fd);
+	        close(kb_fd);
+	        //exit(1);
+	    }
 
-    ~this() {
-        
-    }
+	    ~this() {
+	        
+	    }
 
-    static int count;
-    override Event pool_events() {
-        count++;
-        Event e;
-        if (count < 10){
-            e.code = Event.KeyCode.D;
-        } else {
-            e.code = Event.KeyCode.ESC;
-        }
-        return e;
-    }
+	    static int count;
+	    override Event pool_events() {
+	        count++;
+	        Event e;
+	        if (count < 10){
+	            e.code = Event.KeyCode.D;
+	        } else {
+	            e.code = Event.KeyCode.ESC;
+	        }
+	        return e;
+	    }
 
-private:
-    string getKeyboardDeviceFileName(){
-        auto file = executeShell(CMD);
-        return "/dev/input/" ~ file.output;
-    }
+	private:
+	    string getKeyboardDeviceFileName(){
+	        auto file = executeShell(CMD);
+	        return "/dev/input/" ~ file.output;
+	    }
+	}
+} else version (Windows) {
+	class WindowsInput : Input {
+		this () {
+		}
+
+		static int count;
+		override Event pool_events() {
+			count++;
+			Event e;
+			if (count < 1000){
+				e.code = Event.KeyCode.D;
+			} else {
+				e.code = Event.KeyCode.ESC;
+			}
+			return e;
+		}
+
+	}
 }
-
