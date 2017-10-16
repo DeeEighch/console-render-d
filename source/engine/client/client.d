@@ -1,5 +1,6 @@
 module engine.client.client;
 
+import std.exception;
 import engine.app.render;
 import std.stdio;
 
@@ -11,9 +12,7 @@ class Client {
 
     void run(string[] args) {
 
-        if (!platformInit()){
-            return;
-        }
+        enforce(platformInit(), "Platform specific initialization failed!");
 
         foreach(arg;args) {
             writeln(arg);
@@ -27,7 +26,7 @@ class Client {
         
     }
 
-    private bool platformInit(){
+    private bool platformInit() {
         version (Windows) {
             import core.runtime;
             import core.sys.windows.windows;
