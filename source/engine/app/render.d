@@ -10,14 +10,20 @@ interface Drawable {
     void draw(uint x, uint y, Render render);
 }
 
-class Color {
-    private uint data;
+struct Color {
+    enum RED        = 0x00ff0000;
+    enum GREEN      = 0x0000ff00;
+    enum BLUE       = 0x000000ff;
+    enum YELLOW     = 0x00ffff00;
+    enum LIGTH_BLUE = 0x0000ffff;
+    enum MAGENTA    = 0x00ff00ff;
 
+    private uint data;
     this(uint argb) {
         data = argb;
     }
 
-    this(ubyte r, ubyte g, ubyte b, ubyte a = 0xFF){
+    this(ubyte r, ubyte g, ubyte b, ubyte a = 0xFF) {
         data = 0;
         this.a = a;
         this.r = r;
@@ -43,6 +49,7 @@ class Color {
 
 interface Render
 {
+    void clear(Color color);
 
     void clear(uint argb);
 
@@ -72,10 +79,12 @@ class ConsoleRender : Render
         add_sprite.put([[0xffffffffu, 0x00000000u, 0xffffffffu],
                         [0x00000000u, 0x00000000u, 0xffffffffu],
                         [0xffffffffu, 0xffffffffu, 0xffffffffu]]);
-                   
+
         add_sprite.put([[0x00000000u, 0x00000000u, 0x00000000u],
                         [0x00000000u, 0xffffffffu, 0x00000000u],
                         [0x00000000u, 0x00000000u, 0x00000000u]]);
+
+        add_sprite.put([[0x00000000u]]);
     }
     
     this(uint buffer_w, uint buffer_h) {
@@ -94,7 +103,7 @@ class ConsoleRender : Render
 
     void draw(uint xx, uint yy, uint id) {
 
-        Color color = new Color(0xFF, 0, 0xFF);
+        Color color = Color(0xFF, 0, 0xFF);
         
         uint a = color.a;
         uint r = color.r;
@@ -122,6 +131,10 @@ class ConsoleRender : Render
         }
     }
 
+    void clear(Color color){
+        clear(color.argb);
+    }
+
     void clear(uint argb) {
         foreach (ref row; buffer()) {
             foreach (ref point; row) {
@@ -131,7 +144,6 @@ class ConsoleRender : Render
     }
 
     void flush() {
-        //write("\x1b[2J\x1b[;H");
         if (current_buffer == 0) {
             current_buffer = 1;
             render_buffer(0);
@@ -148,7 +160,7 @@ class ConsoleRender : Render
     void render_buffer(int index) {
         int r;
         auto str_appender = appender!string();
-        str_appender.put("\x1b[2J\x1b[;H");
+        str_appender.put("\x1b[1J");
         foreach (ref row; m_buffer[index]) {
             r++;
             foreach (ref point; row) {
@@ -163,8 +175,8 @@ class ConsoleRender : Render
     }
 
     string bufferPointToConsoleEscape(uint argb) {
-        Color color = new Color(argb);
-        string console_escape = format("\x1b[48;2;%(%s;%)m \x1b[0m", [color.r, color.g, color.b]);
+        Color color = Color(argb);
+        string console_escape = format("\x1b[48;2;%s;%s;%sm \x1b[0m", color.r, color.g, color.b);
         return console_escape;
     }
 }

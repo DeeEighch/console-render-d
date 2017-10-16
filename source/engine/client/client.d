@@ -1,14 +1,15 @@
 module engine.client.client;
 
 import std.exception;
+import std.typecons;
 import engine.app.render;
 import std.stdio;
 
 class Client {
 
-    Render m_render = new ConsoleRender(80,24);
+    Render m_render = new ConsoleRender(80,23);
 
-    Drawable td = new TestDrawable(2);
+    Drawable td = new TestDrawable(3);
 
     void run(string[] args) {
 
@@ -18,8 +19,8 @@ class Client {
             writeln(arg);
         }
 
-        for (int i; true; i = ++i % 80) {
-            m_render.clear(0x00ffff00);
+        for (int i; i < 10; i = ++i % 80) {
+            m_render.clear(Color(255,255,0));
             td.draw(i ,12, m_render);
             m_render.flush();
         }

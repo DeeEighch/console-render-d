@@ -1,16 +1,12 @@
 {
-	"name": "tanks",
+    "name": "tanks",
     
-    
-	"authors": [
-		"Dmitry Herutskyi",
+    "authors": [
+        "Dmitry Herutskyi",
         "Vladyslav Komarov"
-	],
-    
-    
-	"description": "A minimal D application.",
-	"license": "proprietary",
-	"dependencies": {
-		"dscanner": "~>0.4.0"
-	}
+    ],
+    "description": "A minimal D application.",
+    "license": "proprietary",
+    "targetType": "executable",
+    "path":["."]
 }
