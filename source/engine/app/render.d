@@ -1,7 +1,10 @@
 module engine.app.render;
+import std.exception;
 import std.stdio;
 import std.format;
 import std.array;
+
+
 
 interface Drawable {
     void draw(uint x, uint y, Render render);
