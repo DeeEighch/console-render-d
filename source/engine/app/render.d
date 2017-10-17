@@ -159,20 +159,31 @@ class ConsoleRender : Render
 
     void render_buffer(int index) {
         int r;
-        auto str_appender = appender!string();
-        str_appender.put("\x1b[1J");
+        //auto str_appender = appender!string();
+        string s;
+        //str_appender.put("\x1b[1J");
+        //s ~= "\x1b[1J";
+        write("\x1b[1J");
         foreach (ref row; m_buffer[index]) {
             r++;
+
             foreach (ref point; row) {
-                str_appender.put(bufferPointToConsoleEscape(point));
+                //str_appender.put(bufferPointToConsoleEscape(point));
+                //s ~= bufferPointToConsoleEscape(point);
+                write(bufferPointToConsoleEscape(point));
             }
             
             if (r != m_buffer[index].length) {
-                str_appender.put('\n');
+                //str_appender.put('\n');
+                //s ~= '\n';
+                write('\n');
             }
         }
-        writeln(str_appender.data);
+
+        //writeln(str_appender.data);
+//        writeln(s);
     }
+
 
     string bufferPointToConsoleEscape(uint argb) {
         Color color = Color(argb);
@@ -180,6 +191,8 @@ class ConsoleRender : Render
         return console_escape;
     }
 }
+
+
 
 class TestDrawable : Drawable {
 

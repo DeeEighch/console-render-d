@@ -3,7 +3,6 @@
 import std.conv;
 import std.process;
 import std.stdio;
-import core.stdc.stdlib;
 
 
 
@@ -11,40 +10,57 @@ class Input
 {
     struct Event{
         enum KeyCode {
-            W, S, A, D, ESC, LMB, RMB, MMB
+            EMPTY,
+            W = 'w',
+            S = 's',
+            A = 'a',
+            D = 'd',
+            Q = 'q',
+            ESC = '\x1b',
+            LMB,
+            RMB,
+            MMB,
+
         }
         enum Device{
             Keyboard,
             Mouse
         }
         
-        KeyCode code;
+        char code = cast(char)EOF;
     }
 
     private this()
     {
         // Constructor code
     }
-
-    static Input instance = null;
+    private static bool instantiated_;
+    private __gshared Input instance_;
 
     private static Input Instance(){
-        if (instance is null){
-            version (Windows){
-                instance = new WindowsInput();
-            } else version (Posix){
-                instance = new PosixInput();
+        if (!instantiated_){
+            synchronized(Input.classinfo){
+                if (!instance_){
+                    version (Windows){
+                        instance_ = new WindowsInput();
+                    } else version (Posix){
+                        instance_ = new PosixInput();
+                    }
+                    instantiated_ = true;
+                }
             }
         }
-        return instance;
+        return instance_;
     }
 
     static Event handle(){
-        Input.Instance().last  = Input.Instance.pool_events();
-        return Input.Instance.last;
+        Event e;
+        bool result = Input.Instance.pool_event(e.code);
+        Input.Instance().last = e;
+        return e;
     }
 
-    protected abstract Event pool_events();
+    protected abstract bool pool_event(ref char code);
 
     private Event last;
 
@@ -55,8 +71,64 @@ class Input
 version (Posix) {
 	import core.sys.posix.fcntl;
 	import core.sys.posix.unistd;
+	import core.sys.posix.termios;
 	import core.sys.posix.sys.time;
-	import core.sys.posix.sys.time;
+    import core.thread;
+    import std.container.dlist;
+
+
+    class InputThread : Thread {
+        this(){
+            super(&run);
+            initerm();
+
+        }
+        ~this(){
+            finterm();
+        }
+
+        public void stop(){
+            running = false;
+        }
+
+        public bool poll_event(ref char key){
+            int ch = EOF;
+            if ((ch= getchar()) == EOF){
+                return false;
+            }
+
+            key = cast(char)ch;
+            return true;
+        }
+
+    private:
+        bool running;
+        //DList input_q;
+
+        void run(){
+            while (running){
+                //Thread.sleep(dur!("msecs")(100));
+            }
+        }
+    private:
+        termios old_term;
+        int oldf;
+
+        void initerm(){
+            termios newt_term;
+            tcgetattr(0, &old_term);
+            newt_term = old_term;
+            newt_term.c_lflag &= ~(ICANON | ECHO);
+            tcsetattr(0, TCSANOW, &newt_term);
+            oldf = fcntl(0, F_GETFL, 0);
+            fcntl(0, F_SETFL, oldf | O_NONBLOCK);
+        }
+
+        void finterm(){
+            tcsetattr(0, TCSANOW, &old_term);
+            fcntl(0, F_SETFL, oldf);
+        }
+    }
 
 	class PosixInput : Input {
 	    enum CMD = "grep -E 'Handlers|EV' /proc/bus/input/devices |"
@@ -65,36 +137,32 @@ version (Posix) {
 	               "tr '\\n' '\\0'";
 	    string kb_file;
 
-	    struct input_event {
-	        timeval time;
-	        uint16_t type;
-	        uint16_t code;
-	        int32_t value;
-	    };
-
 	    this(){
 
-	        kb_file = getKeyboardDeviceFileName();
+	        /*kb_file = getKeyboardDeviceFileName();
 	        int kb_fd = open(kb_file.ptr, O_RDONLY);
 	        writeln("KBFD: ", kb_fd);
-	        close(kb_fd);
+	        close(kb_fd);*/
 	        //exit(1);
+            initerm();
+            writeln(__FUNCTION__);
 	    }
 
 	    ~this() {
-	        
+            finterm();
+            writeln(__FUNCTION__);
 	    }
 
 	    static int count;
-	    override Event pool_events() {
-	        count++;
-	        Event e;
-	        if (count < 10){
-	            e.code = Event.KeyCode.D;
-	        } else {
-	            e.code = Event.KeyCode.ESC;
-	        }
-	        return e;
+	    override bool pool_event(ref char code) {
+            int ch = EOF;
+            if ((ch = getchar()) == EOF){
+                return false;
+            }
+
+            code = cast(char)ch;
+
+            return true;
 	    }
 
 	private:
@@ -102,6 +170,26 @@ version (Posix) {
 	        auto file = executeShell(CMD);
 	        return "/dev/input/" ~ file.output;
 	    }
+
+    private:
+        termios old_term;
+        int oldf;
+        
+        void initerm(){
+            termios newt_term;
+            tcgetattr(STDIN_FILENO, &old_term);
+            newt_term = old_term;
+            newt_term.c_lflag &= ~(ICANON | ECHO);
+            //newt_term.c_cc[VMIN] = 1;
+            tcsetattr(STDIN_FILENO, TCSANOW, &newt_term);
+            oldf = fcntl(0, F_GETFL, 0);
+            fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+        }
+        
+        void finterm(){
+            tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+            fcntl(0, F_SETFL, oldf);
+        }
 	}
 } else version (Windows) {
 	class WindowsInput : Input {
@@ -109,7 +197,7 @@ version (Posix) {
 		}
 
 		static int count;
-		override Event pool_events() {
+		override Event pool_event() {
 			count++;
 			Event e;
 			if (count < 1000){

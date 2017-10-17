@@ -6,11 +6,12 @@ import engine.app.render;
 import engine.app.input;
 import std.stdio;
 
+
 class Client {
 
     Render m_render = new ConsoleRender(80,23);
 
-    Drawable td = new TestDrawable(3);
+    Drawable td = new TestDrawable(2);
 
     void run(string[] args) {
 
@@ -19,17 +20,32 @@ class Client {
         foreach(arg;args) {
             writeln(arg);
         }
-
-        for (int i; Input.handle().code !is Input.Event.KeyCode.ESC; i = ++i % 80) {
+        Input.Event event;
+        for (int i; (event = Input.handle()).code != Input.Event.KeyCode.Q/*Input.Event.KeyCode.ESC*/; i = ++i % 80) {
             static int x = 2;
             static int y = 12;
-            m_render.clear(Color(255,255,0));
-            if (Input.last_event.code is Input.Event.KeyCode.D){
-                x++;
+            m_render.clear(Color(0,255,0));
+            switch (event.code) {
+                case Input.Event.KeyCode.D :
+                    x++;
+                    break;
+                case Input.Event.KeyCode.A:
+                    x--;
+                    break;
+                case Input.Event.KeyCode.W:
+                    y--;
+                    break;
+                case Input.Event.KeyCode.S:
+                    y++;
+                    break;
+                default:
+                    break;
             }
+
             td.draw(x ,y, m_render);
             m_render.flush();
         }
+        writeln("OUT");
         
     }
 
