@@ -6,10 +6,9 @@ import engine.app.render;
 import engine.app.input;
 import std.stdio;
 
-
 class Client {
 
-    Render m_render = new ConsoleRender(80,23);
+    Render m_render = new ConsoleRender(80,23/*, ConsoleRender.Mode.SYMBOL*/);
 
     Drawable td = new TestDrawable(2);
 
@@ -20,22 +19,23 @@ class Client {
         foreach(arg;args) {
             writeln(arg);
         }
+
         Input.Event event;
-        for (int i; (event = Input.handle()).code != Input.Event.KeyCode.Q/*Input.Event.KeyCode.ESC*/; i = ++i % 80) {
+        for (int i; (event = Input.handle()).code != Input.KeyCode.Q; i = ++i % 80) {
             static int x = 2;
             static int y = 12;
-            m_render.clear(Color(0,255,0));
+            m_render.clear(Color.GREEN);
             switch (event.code) {
-                case Input.Event.KeyCode.D :
+                case Input.KeyCode.D:
                     x++;
                     break;
-                case Input.Event.KeyCode.A:
+                case Input.KeyCode.A:
                     x--;
                     break;
-                case Input.Event.KeyCode.W:
+                case Input.KeyCode.W:
                     y--;
                     break;
-                case Input.Event.KeyCode.S:
+                case Input.KeyCode.S:
                     y++;
                     break;
                 default:
@@ -45,8 +45,7 @@ class Client {
             td.draw(x ,y, m_render);
             m_render.flush();
         }
-        writeln("OUT");
-        
+        writeln("EXIT");
     }
 
     private bool platformInit() {

@@ -11,12 +11,17 @@ interface Drawable {
 }
 
 struct Color {
-    enum RED        = 0x00ff0000;
-    enum GREEN      = 0x0000ff00;
-    enum BLUE       = 0x000000ff;
-    enum YELLOW     = 0x00ffff00;
-    enum LIGTH_BLUE = 0x0000ffff;
-    enum MAGENTA    = 0x00ff00ff;
+public:
+    enum {
+		RED       	= 0x00ff0000u,
+    	GREEN     	= 0x0000ff00u,
+    	BLUE      	= 0x000000ffu,
+    	YELLOW    	= 0x00ffff00u,
+    	LIGTH_BLUE	= 0x0000ffffu,
+    	MAGENTA   	= 0x00ff00ffu,
+		BLACK    	= 0x00000000u,
+		WHITE   	= 0xffffffffu
+	}
 
     private uint data;
     this(uint argb) {
@@ -30,6 +35,33 @@ struct Color {
         this.g = g;
         this.b = b;
     }
+
+	string toString(){
+		switch (data) {
+			case BLACK:
+				return " ";
+			case WHITE:
+				return "W";
+			case MAGENTA:
+				return "M";
+			case LIGTH_BLUE:
+				return "L";
+			case YELLOW:
+				return "Y";
+			case BLUE:
+				return "B";
+			case GREEN:
+				return "G";
+			case RED:
+				return "R";
+			default:
+				return " ";
+		}
+	}
+
+	string esc_seq(){
+		return format("\x1b[48;2;%s;%s;%sm \x1b[0m", r, g, b);
+	}
 
     @property uint a() { return (data >> 24) & 0xFF ; };
     @property void a(uint value) { data = (data & 0x00FFFFFF) | ((value & 0xFF) << 24); };
@@ -62,6 +94,12 @@ interface Render
 class ConsoleRender : Render
 {
 
+	enum Mode {
+		COLOR_SYMBOL,
+		SYMBOL
+	}
+	Mode mode;
+
     uint m_buffer_w;
     uint m_buffer_h;
     uint current_buffer;
@@ -72,22 +110,23 @@ class ConsoleRender : Render
     void initSprites(){
         auto add_sprite = appender(&m_sprites);
         
-        add_sprite.put([[0x00000000u, 0xffffffffu, 0x00000000u],
-                        [0xffffffffu, 0xffffffffu, 0x00000000u],
-                        [0x00000000u, 0x00000000u, 0x00000000u]]);
+		add_sprite.put([[Color.BLACK, Color.WHITE, Color.BLACK],
+						[Color.WHITE, Color.WHITE, Color.BLACK],
+						[Color.BLACK, Color.BLACK, Color.BLACK]]);
                         
-        add_sprite.put([[0xffffffffu, 0x00000000u, 0xffffffffu],
-                        [0x00000000u, 0x00000000u, 0xffffffffu],
-                        [0xffffffffu, 0xffffffffu, 0xffffffffu]]);
+		add_sprite.put([[Color.WHITE, Color.BLACK, Color.WHITE],
+						[Color.BLACK, Color.BLACK, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.WHITE]]);
 
-        add_sprite.put([[0x00000000u, 0x00000000u, 0x00000000u],
-                        [0x00000000u, 0xffffffffu, 0x00000000u],
-                        [0x00000000u, 0x00000000u, 0x00000000u]]);
+		add_sprite.put([[Color.BLACK, Color.BLACK, Color.BLACK],
+						[Color.BLACK, Color.WHITE, Color.BLACK],
+						[Color.BLACK, Color.BLACK, Color.BLACK]]);
 
-        add_sprite.put([[0x00000000u]]);
-    }
+		add_sprite.put([[Color.BLACK]]);
+	}
     
-    this(uint buffer_w, uint buffer_h) {
+    this(uint buffer_w, uint buffer_h, Mode mode = Mode.COLOR_SYMBOL) {
+		this.mode = mode;
         m_buffer.length = 2;
         foreach(ref buffer_slice; m_buffer) {
             buffer_slice.length = buffer_h;
@@ -159,29 +198,32 @@ class ConsoleRender : Render
 
     void render_buffer(int index) {
         int r;
-        //auto str_appender = appender!string();
-        string s;
-        //str_appender.put("\x1b[1J");
-        //s ~= "\x1b[1J";
-        write("\x1b[1J");
+        auto str_appender = appender!string();
+
+		str_appender.put("\x1b[1J");
+
         foreach (ref row; m_buffer[index]) {
             r++;
 
             foreach (ref point; row) {
-                //str_appender.put(bufferPointToConsoleEscape(point));
-                //s ~= bufferPointToConsoleEscape(point);
-                write(bufferPointToConsoleEscape(point));
-            }
-            
-            if (r != m_buffer[index].length) {
-                //str_appender.put('\n');
-                //s ~= '\n';
-                write('\n');
-            }
-        }
+                if (mode == Mode.COLOR_SYMBOL) {
+					//str_appender.put(bufferPointToConsoleEscape(point));
+					str_appender.put(Color(point).esc_seq);
+				} else {
+					str_appender.put(Color(point).toString);
+				}
+			}
 
-        //writeln(str_appender.data);
-//        writeln(s);
+	        if (r != m_buffer[index].length) {
+	            str_appender.put('\n');
+	        }
+
+        }
+        try {
+			writeln(str_appender.data);
+		} catch (Exception e){
+				writef("\x1b[2J\x1b[;H%s", e.info);
+		}
     }
 
 
