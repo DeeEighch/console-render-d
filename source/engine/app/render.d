@@ -20,7 +20,8 @@ public:
     	LIGTH_BLUE	= 0x0000ffffu,
     	MAGENTA   	= 0x00ff00ffu,
 		BLACK    	= 0x00000000u,
-		WHITE   	= 0xffffffffu
+		WHITE   	= 0xffffffffu,
+		BROWN		= 0xffa52a2a
 	}
 
     private uint data;
@@ -36,7 +37,7 @@ public:
         this.b = b;
     }
 
-	string toString(){
+	string toString() {
 		switch (data) {
 			case BLACK:
 				return " ";
@@ -54,6 +55,8 @@ public:
 				return "G";
 			case RED:
 				return "R";
+			case BROWN:
+				return "b";
 			default:
 				return " ";
 		}
@@ -121,6 +124,20 @@ class ConsoleRender : Render
 		add_sprite.put([[Color.BLACK, Color.BLACK, Color.BLACK],
 						[Color.BLACK, Color.WHITE, Color.BLACK],
 						[Color.BLACK, Color.BLACK, Color.BLACK]]);
+
+		add_sprite.put([[Color.WHITE, Color.WHITE, Color.WHITE,Color.WHITE, Color.WHITE, Color.WHITE,Color.BROWN, Color.BROWN, Color.BROWN,Color.WHITE, Color.WHITE,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.WHITE,Color.WHITE, Color.WHITE, Color.BROWN,Color.BROWN, Color.BROWN, Color.WHITE,Color.WHITE, Color.WHITE,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.WHITE,Color.WHITE, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.BROWN,Color.WHITE, Color.WHITE,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.WHITE,Color.WHITE, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.BROWN,Color.WHITE, Color.WHITE,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.WHITE,Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.WHITE,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.BROWN,Color.WHITE, Color.WHITE, Color.WHITE,Color.BROWN, Color.WHITE, Color.WHITE,Color.WHITE, Color.BROWN,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.BROWN,Color.WHITE, Color.BLACK, Color.WHITE,Color.BROWN, Color.WHITE, Color.BLACK,Color.WHITE, Color.BROWN,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.WHITE, Color.BROWN,Color.WHITE, Color.BLACK, Color.WHITE,Color.BROWN, Color.WHITE, Color.BLACK,Color.WHITE, Color.BROWN,Color.WHITE, Color.WHITE],
+						[Color.WHITE, Color.BROWN, Color.BROWN,Color.WHITE, Color.WHITE, Color.WHITE,Color.BROWN, Color.WHITE, Color.WHITE,Color.WHITE, Color.BROWN,Color.BROWN, Color.WHITE],
+						[Color.WHITE, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN,Color.BROWN, Color.WHITE],
+						[Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.WHITE, Color.WHITE,Color.WHITE, Color.WHITE, Color.WHITE,Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN],
+						[Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.WHITE,Color.WHITE, Color.WHITE, Color.BROWN,Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN],
+						[Color.WHITE, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN, Color.BROWN,Color.BROWN, Color.BROWN,Color.BROWN, Color.WHITE]]);
 
 		add_sprite.put([[Color.BLACK]]);
 	}
@@ -207,7 +224,6 @@ class ConsoleRender : Render
 
             foreach (ref point; row) {
                 if (mode == Mode.COLOR_SYMBOL) {
-					//str_appender.put(bufferPointToConsoleEscape(point));
 					str_appender.put(Color(point).esc_seq);
 				} else {
 					str_appender.put(Color(point).toString);

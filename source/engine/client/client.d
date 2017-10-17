@@ -8,9 +8,9 @@ import std.stdio;
 
 class Client {
 
-    Render m_render = new ConsoleRender(80,23, ConsoleRender.Mode.SYMBOL);
+    Render m_render = new ConsoleRender(80,23/*, ConsoleRender.Mode.SYMBOL*/);
 
-    Drawable td = new TestDrawable(2);
+    Drawable td = new TestDrawable(3);
 
     void run(string[] args) {
 
@@ -21,10 +21,10 @@ class Client {
         }
 
         Input.Event event;
-        for (int i; /*(event = Input.handle()).code != Input.KeyCode.Q*/ true; i = ++i % 80) {
+        for (int i; (event = Input.handle()).code != Input.KeyCode.Q; i = ++i % 80) {
             static int x = 20;
             static int y = 12;
-            m_render.clear(Color.GREEN);
+            m_render.clear(Color.YELLOW);
             switch (event.code) {
                 case Input.KeyCode.D:
                     x++;
@@ -45,7 +45,7 @@ class Client {
             td.draw(x ,y, m_render);
             m_render.flush();
         }
-        //writeln("EXIT");
+        writeln("EXIT");
     }
 
     private bool platformInit() {

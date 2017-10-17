@@ -75,11 +75,10 @@ version (Posix) {
 	import std.container.dlist;
 
 	class PosixInput : Input {
-		string CMD = "grep -E 'Handlers|EV' /proc/bus/input/devices |"
-			"grep -B1 120013 |"
-				"grep -Eo event[0-9]+ |"
-				"tr '\\n' '\\0'";
-		string kb_file;
+		string CMD = "grep -E 'Handlers|EV' /proc/bus/input/devices |" ~
+					 "grep -B1 120013 |" ~
+					 "grep -Eo event[0-9]+ |" ~
+					 "tr '\\n' '\\0'";
 		
 		this(){
 			initerm();
