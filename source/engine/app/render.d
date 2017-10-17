@@ -200,7 +200,7 @@ class ConsoleRender : Render
         int r;
         auto str_appender = appender!string();
 
-		str_appender.put("\x1b[1J");
+		str_appender.put("\x1b[;H\x1b[1J");
 
         foreach (ref row; m_buffer[index]) {
             r++;
