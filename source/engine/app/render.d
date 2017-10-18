@@ -4,6 +4,8 @@ import std.stdio;
 
 import std.format;
 import std.array;
+import core.stdc.errno;
+
 
 
 
@@ -219,6 +221,8 @@ class ConsoleRender : Render
     }
 
     void render_buffer(int index) {
+		import core.stdc.stdio;
+		import std.conv;
         int r;
         auto str_appender = appender!string();
 
@@ -230,21 +234,37 @@ class ConsoleRender : Render
             foreach (ref point; row) {
                 if (mode == Mode.COLOR_SYMBOL) {
 					str_appender.put(Color(point).esc_seq);
+					//fputs(cast(const char*)Color(point).esc_seq.dup, stdout);
 				} else {
 					str_appender.put(Color(point).toString);
+					//fputs(cast(const char*)Color(point).toString.dup, stdout);
 				}
 			}
 
 	        if (r != m_buffer[index].length) {
-	            str_appender.put('\n');
+				str_appender.put("\n");
+				//fputs(cast(const char*)"\n".dup, stdout);
+
 	        }
 
         }
-        try {
-			writeln(str_appender.data);
+
+		foreach (c;str_appender.data){
+			int code = EAGAIN;
+			while (code != cast(int)c){ 
+				code = fputc(cast(const char*)c, stdout);
+			}
+		}
+
+        /*try {
+			//writeln(str_appender.data);
+			auto ss = split(str_appender.data, "m");
+			foreach (s;ss){
+				fputs(cast(const char*)(s ~ "m").dup, stdout);
+			}
 		} catch (Exception e){
 				writef("\x1b[2J\x1b[;H%s", e.info);
-		}
+		}*/
     }
 
 
