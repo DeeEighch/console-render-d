@@ -172,15 +172,6 @@ class ConsoleRender : Render
 	}
 
     void draw(uint xx, uint yy, uint id) {
-
-        Color color = Color(0xFF, 0, 0xFF);
-        
-        uint a = color.a;
-        uint r = color.r;
-        uint g = color.g;
-        uint b = color.b;
-        uint argb = color.argb;
-        
         if (id < m_sprites.length) {
             draw_sprite(xx, yy, m_sprites[id]);
         }
