@@ -1,8 +1,10 @@
 module engine.app.render;
 import std.exception;
 import std.stdio;
+
 import std.format;
 import std.array;
+
 
 
 
@@ -92,6 +94,10 @@ interface Render
 
     void flush();
 
+	uint buffer_w();
+
+	uint buffer_h();
+
 }
 
 class ConsoleRender : Render
@@ -141,7 +147,7 @@ class ConsoleRender : Render
 
 		add_sprite.put([[Color.BLACK]]);
 	}
-    
+
     this(uint buffer_w, uint buffer_h, Mode mode = Mode.COLOR_SYMBOL) {
 		this.mode = mode;
         m_buffer.length = 2;
@@ -156,6 +162,14 @@ class ConsoleRender : Render
         m_buffer_h = buffer_h;
         initSprites();
     }
+
+	override uint buffer_w(){
+		return m_buffer_w;
+	}
+
+	override uint buffer_h(){
+		return m_buffer_h;
+	}
 
     void draw(uint xx, uint yy, uint id) {
 

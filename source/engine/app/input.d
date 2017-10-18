@@ -120,12 +120,12 @@ version (Posix) {
 			//newt_term.c_cc[VMIN] = 1;
 			tcsetattr(STDIN_FILENO, TCSANOW, &newt_term);
 			oldf = fcntl(0, F_GETFL, 0);
-			fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+			//fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
 		}
 		
 		void finterm(){
 			tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
-			fcntl(0, F_SETFL, oldf);
+			//fcntl(0, F_SETFL, oldf);
 		}
 	}
 } else version (Windows) {

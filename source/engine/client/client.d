@@ -6,9 +6,16 @@ import engine.app.render;
 import engine.app.input;
 import std.stdio;
 
+import std.string : split;
+import std.conv;
+import std.process;
+
+
 class Client {
 
-    Render m_render = new ConsoleRender(80,23/*, ConsoleRender.Mode.SYMBOL*/);
+
+
+	Render m_render; 
 
     Drawable td = new TestDrawable(3);
 
@@ -20,8 +27,14 @@ class Client {
             writeln(arg);
         }
 
+		uint[2] term_size = get_terminal_size();
+
+		enforce(term_size.length == 2 && term_size[0] > 0 && term_size[1] > 0, "Terminal windows size detection failed!");
+
+		m_render = new ConsoleRender(term_size[1], term_size[0] - 1 /* , ConsoleRender.Mode.SYMBOL*/);
+
         Input.Event event;
-        for (int i; (event = Input.handle()).code != Input.KeyCode.Q; i = ++i % 80) {
+        for (int i; (event = Input.handle()).code != Input.KeyCode.Q; i = ++i % m_render.buffer_w()) {
             static int x = 20;
             static int y = 12;
             m_render.clear(Color.YELLOW);
@@ -79,4 +92,11 @@ class Client {
             return true;
         }
     }
+
+	private uint[] get_terminal_size(){
+		auto cmd = executeShell("stty size");
+		auto numbers = to!(uint[])(split(cmd.output));
+		writefln("stty size: %s\nrows: %s\ncols: %s", cmd.output, numbers[0], numbers[1]);
+		return numbers;
+	}
 }
