@@ -134,7 +134,8 @@ version (Posix) {
 		}
 		
 		static int count;
-		override Event pool_event() {
+		/*
+		override bool pool_event() {
 			count++;
 			Event e;
 			if (count < 1000){
@@ -144,6 +145,18 @@ version (Posix) {
 			}
 			return e;
 		}
+		*/
+		override bool pool_event(ref char code) {
+			int ch = EOF;
+			if ((ch = getchar_unlocked()) == EOF) {
+				code = cast(char)ch;
+				return false;
+			}
+			
+			code = cast(char)ch;
+			
+			return true;
 		
+		}
 	}
 }

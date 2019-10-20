@@ -11,6 +11,7 @@ import core.stdc.errno;
 
 
 interface Drawable {
+    //Draw
     void draw(uint x, uint y, Render render);
 }
 

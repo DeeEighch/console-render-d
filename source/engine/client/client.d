@@ -12,9 +12,6 @@ import std.process;
 
 
 class Client {
-
-
-
 	Render m_render; 
 
     Drawable td = new TestDrawable(3);
@@ -94,9 +91,17 @@ class Client {
     }
 
 	private uint[] get_terminal_size(){
-		auto cmd = executeShell("stty size");
-		auto numbers = to!(uint[])(split(cmd.output));
-		writefln("stty size: %s\nrows: %s\ncols: %s", cmd.output, numbers[0], numbers[1]);
-		return numbers;
+        version (Windows) {
+            import core.runtime;
+            import core.sys.windows.windows;
+            CONSOLE_SCREEN_BUFFER_INFO csbi;
+            GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+            return [csbi.dwSize.Y, csbi.dwSize.X];
+        } else {
+            auto cmd = executeShell("stty size");
+            auto numbers = to!(uint[])(split(cmd.output));
+            writefln("stty size: %s\nrows: %s\ncols: %s", cmd.output, numbers[0], numbers[1]);
+            return numbers;
+        }
 	}
 }
